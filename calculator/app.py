@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template_string
+from flask import Flask, request, render_template_string  # pyright: ignore[reportMissingImports]
 
 app = Flask(__name__)
 
@@ -121,6 +121,6 @@ def calculator():
 @app.route("/health")
 def health():
     return {"status": "ok"}
-
+    
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
