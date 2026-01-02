@@ -1,277 +1,140 @@
 # Learn-Docker
 
-This repository contains Docker examples for learning containerization with Python applications.
+Docker examples for learning containerization with Python applications.
 
 ## 📁 Project Structure
 
 ```
 Learn-Docker/
 ├── calculator/          # Flask calculator application
-│   ├── app.py
-│   ├── Dockerfile
-│   └── requirements.txt
-└── Flood_Prediction/    # Streamlit flood prediction ML application
-    ├── app.py
-    ├── Dockerfile
-    ├── requirements.txt
-    └── Flood_prediction.pkl
+├── Flood_Prediction/    # Streamlit flood prediction ML application
+└── deploy_on_EC2/      # FastAPI + React full-stack application
 ```
 
 ---
 
-## 🐳 Docker Commands
+## 🐳 Calculator Application
 
-### Calculator Application
-
-#### 1. Build Docker Image
-
+### Build Image
 ```bash
 docker build -t calculator-app ./calculator
 ```
 
-**Explanation:**
-
-- `docker build` - Command to build a Docker image from a Dockerfile
-- `-t calculator-app` - Tags the image with the name "calculator-app" (makes it easier to reference later)
-- `./calculator` - Specifies the build context (directory containing the Dockerfile and application files)
-
-#### 2. Run Docker Container
-
+### Run Container
 ```bash
 docker run -d -p 8000:8000 --name calculator-container calculator-app
 ```
 
-**Explanation:**
-
-- `docker run` - Command to create and start a new container from an image
-- `-d` - Runs the container in detached mode (in the background)
-- `-p 8000:8000` - Maps port 8000 from the host machine to port 8000 in the container (host:container format)
-- `--name calculator-container` - Assigns a custom name "calculator-container" to the container
-- `calculator-app` - The image name to run
-
-#### 3. View Running Containers
-
+### Container Management
 ```bash
-docker ps
+docker ps                          # View running containers
+docker ps -a                       # View all containers
+docker stop calculator-container   # Stop container
+docker start calculator-container  # Start container
+docker rm calculator-container     # Remove container
+docker logs calculator-container   # View logs
+docker logs -f calculator-container # Follow logs
+docker exec -it calculator-container /bin/bash  # Access shell
 ```
 
-**Explanation:**
-
-- `docker ps` - Lists all currently running containers
-- Shows container ID, image name, status, ports, and names
-
-#### 4. View All Containers (Including Stopped)
-
-```bash
-docker ps -a
-```
-
-**Explanation:**
-
-- `docker ps -a` - Lists all containers, including stopped ones
-- `-a` - Flag for "all" containers
-
-#### 5. Stop Container
-
-```bash
-docker stop calculator-container
-```
-
-**Explanation:**
-
-- `docker stop` - Gracefully stops a running container
-- `calculator-container` - The name or ID of the container to stop
-
-#### 6. Start Stopped Container
-
-```bash
-docker start calculator-container
-```
-
-**Explanation:**
-
-- `docker start` - Starts a previously stopped container
-- `calculator-container` - The name or ID of the container to start
-
-#### 7. Remove Container
-
-```bash
-docker rm calculator-container
-```
-
-**Explanation:**
-
-- `docker rm` - Removes a stopped container
-- `calculator-container` - The name or ID of the container to remove
-- Note: Container must be stopped before removal (or use `-f` flag to force remove)
-
-#### 8. View Container Logs
-
-```bash
-docker logs calculator-container
-```
-
-**Explanation:**
-
-- `docker logs` - Displays the logs/output from a container
-- `calculator-container` - The name or ID of the container
-- Use `-f` flag to follow logs in real-time: `docker logs -f calculator-container`
-
-#### 9. Access Container Shell
-
-```bash
-docker exec -it calculator-container /bin/bash
-```
-
-**Explanation:**
-
-- `docker exec` - Executes a command in a running container
-- `-it` - Interactive terminal flag (allows you to interact with the container)
-- `calculator-container` - The name or ID of the container
-- `/bin/bash` - The command to execute (opens a bash shell)
+**Access:** http://localhost:8000
 
 ---
 
-### Flood Prediction Application
+## 🐳 Flood Prediction Application
 
-#### 1. Build Docker Image
-
+### Build Image
 ```bash
 docker build -t flood-prediction-app ./Flood_Prediction
 ```
 
-**Explanation:**
-
-- `docker build` - Command to build a Docker image from a Dockerfile
-- `-t flood-prediction-app` - Tags the image with the name "flood-prediction-app"
-- `./Flood_Prediction` - Specifies the build context (directory containing the Dockerfile and application files)
-
-#### 2. Run Docker Container
-
+### Run Container
 ```bash
 docker run -d -p 8501:8501 --name flood-prediction-container flood-prediction-app
 ```
 
-**Explanation:**
-
-- `docker run` - Command to create and start a new container from an image
-- `-d` - Runs the container in detached mode (in the background)
-- `-p 8501:8501` - Maps port 8501 from the host machine to port 8501 in the container (Streamlit default port)
-- `--name flood-prediction-container` - Assigns a custom name to the container
-- `flood-prediction-app` - The image name to run
-
-#### 3. Stop Container
-
+### Container Management
 ```bash
 docker stop flood-prediction-container
-```
-
-**Explanation:**
-
-- `docker stop` - Gracefully stops a running container
-- `flood-prediction-container` - The name or ID of the container to stop
-
-#### 4. Remove Container
-
-```bash
 docker rm flood-prediction-container
+docker logs flood-prediction-container
 ```
 
-**Explanation:**
-
-- `docker rm` - Removes a stopped container
-- `flood-prediction-container` - The name or ID of the container to remove
+**Access:** http://localhost:8501
 
 ---
 
-## 🗑️ Image Management Commands
+## 🐳 FastAPI + React Application (deploy_on_EC2)
 
-#### 1. List All Docker Images
-
+### Using Docker Compose (Recommended)
 ```bash
-docker images
+cd deploy_on_EC2
+docker-compose up --build
+docker-compose down                # Stop containers
 ```
 
-**Explanation:**
+**Access:**
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8000
+- API Docs: http://localhost:8000/docs
 
-- `docker images` - Lists all Docker images stored locally
-- Shows image repository, tag, image ID, creation date, and size
+### Run Containers Separately
 
-#### 2. Remove Docker Image
-
+**Backend:**
 ```bash
-docker rmi calculator-app
+cd deploy_on_EC2/backend
+docker build -t sumanydv/ec2-backend .
+docker run -p 8000:8000 sumanydv/ec2-backend
 ```
 
-**Explanation:**
-
-- `docker rmi` - Removes a Docker image (note: "rmi" stands for "remove image")
-- `calculator-app` - The image name or ID to remove
-- Note: All containers using this image must be removed first
-
-#### 3. Remove All Unused Images
-
+**Frontend:**
 ```bash
-docker image prune -a
+cd deploy_on_EC2/frontend
+docker build -t ec2-frontend .
+docker run -p 5173:5173 -e VITE_API_TARGET=http://host.docker.internal:8000 ec2-frontend
 ```
 
-**Explanation:**
+### Push to Docker Hub
+```bash
+# Backend
+cd deploy_on_EC2/backend
+docker build -t sumanydv/ec2-backend .
+docker push sumanydv/ec2-backend
 
-- `docker image prune` - Removes unused images
-- `-a` - Removes all images not associated with a container (not just dangling images)
+# Frontend
+cd deploy_on_EC2/frontend
+docker build -t sumanydv/ec2-frontend .
+docker push sumanydv/ec2-frontend
+```
 
 ---
 
-## 🧹 Cleanup Commands
-
-#### 1. Remove All Stopped Containers
+## 🗑️ Image Management
 
 ```bash
-docker container prune
+docker images                      # List all images
+docker rmi <image-name>            # Remove image
+docker image prune -a              # Remove all unused images
 ```
-
-**Explanation:**
-
-- `docker container prune` - Removes all stopped containers
-- Prompts for confirmation before deletion
-
-#### 2. Remove All Unused Resources
-
-```bash
-docker system prune -a
-```
-
-**Explanation:**
-
-- `docker system prune` - Removes all unused containers, networks, images, and build cache
-- `-a` - Also removes all unused images, not just dangling ones
-- Use with caution as it removes all unused Docker resources
 
 ---
 
-## 📝 Quick Reference
+## 🧹 Cleanup
 
-### Calculator App
-
-- **Port:** 8000
-- **Access:** http://localhost:8000
-- **Build:** `docker build -t calculator-app ./calculator`
-- **Run:** `docker run -d -p 8000:8000 --name calculator-container calculator-app`
-
-### Flood Prediction App
-
-- **Port:** 8501
-- **Access:** http://localhost:8501
-- **Build:** `docker build -t flood-prediction-app ./Flood_Prediction`
-- **Run:** `docker run -d -p 8501:8501 --name flood-prediction-container flood-prediction-app`
+```bash
+docker container prune             # Remove all stopped containers
+docker system prune -a            # Remove all unused resources
+```
 
 ---
 
-## 🔍 Useful Tips
+## 🔍 Useful Commands
 
-1. **View real-time logs:** `docker logs -f <container-name>`
-2. **Execute commands in container:** `docker exec -it <container-name> <command>`
-3. **Inspect container details:** `docker inspect <container-name>`
-4. **View resource usage:** `docker stats`
-5. **Copy files from container:** `docker cp <container-name>:<path> <host-path>`
-6. **Copy files to container:** `docker cp <host-path> <container-name>:<path>`
+```bash
+docker logs -f <container-name>                    # Follow logs
+docker exec -it <container-name> <command>         # Execute command
+docker inspect <container-name>                    # Inspect container
+docker stats                                       # View resource usage
+docker cp <container-name>:<path> <host-path>      # Copy from container
+docker cp <host-path> <container-name>:<path>      # Copy to container
+```
