@@ -1,0 +1,18 @@
+services:
+  backend:
+    image: sumanydv/deploy-on-ec2-backend:latest
+    ports:
+      - '8000:8000'
+    env_file:
+      - ./backend/.env
+    restart: always
+  
+  frontend:
+    image: sumanydv/deploy-on-ec2-frontend:latest
+    ports:
+      - '5173:5173'
+    environment:
+      - VITE_API_BASE_URL=http://backend:8080
+    depends_on:
+      - backend
+    restart: always
